@@ -160,8 +160,9 @@ class BlogSpider(CrawlSpider):
         for out in blog['url_outer']:
             if insert_redis('sadd', get_base_url(blog['url_from']), get_base_url(out)):
                 insert_table(get_base_url(blog['url_from']), get_base_url(out), get_base_url(blog['url_refer']))
-                # print "insert_redis"
-            # insert_redis('sadd', blog['url_from'], out)
+
+        # Comment this if you're not using InnoDB engine
+        CONN.commit()
 
         '''
         Print Item
