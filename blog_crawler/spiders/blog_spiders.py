@@ -7,12 +7,15 @@ import pprint
 import re
 import urlparse
 from blog_crawler.settings import *
+import redis
+import urlparse
 
 '''
 Local VARIABLE
 '''
 cursor = CONN.cursor()
 pp = pprint.PrettyPrinter(indent=4)
+r = redis.Redis("localhost")
 
 
 def exclude_self(url, response_url, mode):
@@ -52,12 +55,15 @@ def clean_www(url):
 
 
 def get_base_url(url):
-    u = urlparse.urlparse(url)
-    """
-    >>> urlparse.urlparse('http://tmcblog.com')
-    >>> ParseResult(scheme='http', netloc='tmcblog.com', path='', params='', query='', fragment='')
-    """
-    return "%s://%s" % (u.scheme, u.netloc)
+    if url != "":
+        u = urlparse.urlparse(url)
+        """
+        >>> urlparse.urlparse('http://tmcblog.com')
+        >>> ParseResult(scheme='http', netloc='tmcblog.com', path='', params='', query='', fragment='')
+        """
+        return "%s://%s" % (u.scheme, u.netloc)
+    else:
+        return ""
 
 
 def insert_table(url_from, url_found, url_referer):
@@ -72,6 +78,16 @@ values('%s', '%s', '%s')" % (SQL_TABLE, url_from, \
         return True
     else:
         print "Something wrong"
+
+
+def insert_redis(command, key1, key2):
+    # r.sadd(key1, key2)
+    if command == 'sadd':
+        if r.sadd(key1, key2):
+            return True
+    if command == 'set':
+        if r.set(key1, key2):
+            return True
 
 
 class BlogSpider(CrawlSpider):
@@ -142,7 +158,11 @@ class BlogSpider(CrawlSpider):
         Save to MySQL, looping by outer_link
         '''
         for out in blog['url_outer']:
-            insert_table(blog['url_from'], out, blog['url_refer'])
+            if insert_redis('sadd', get_base_url(blog['url_from']), get_base_url(out)):
+                insert_table(get_base_url(blog['url_from']), get_base_url(out), get_base_url(blog['url_refer']))
+                # print "insert_redis"
+            # insert_redis('sadd', blog['url_from'], out)
+
         '''
         Print Item
         '''
