@@ -5,13 +5,17 @@ This Crawler is for crawl some [Blog URL](http://tmcblog.com) like that,
 and return some url that found on that url, then insert it into mysql.
 
 ## How to Use :
-1. Edit blog_crawler/settings.py change your scrapy and database setting
-2. Edit DEPTH_LIMIT if You want deeper crawling
-3. Edit kaskus/spiders/new_kaskus_spider.py, change list of thread in this line:
+1. Clone this repository
+
+        git clone https://github.com/clasense4/scrapy-blog-crawler.git
+
+2. Edit `blog_crawler/settings.py` change your scrapy, redis and MySQL setting
+3. Edit DEPTH_LIMIT if You want deeper crawling
+4. Edit kaskus/spiders/new_kaskus_spider.py, change list of thread in this line:
 
         start_urls = ['http://tmcblog.com']
 
-4. Insert this query :
+5. Insert this query :
         
         CREATE TABLE `scrapy_blog` (
           `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -21,11 +25,16 @@ and return some url that found on that url, then insert it into mysql.
           PRIMARY KEY (`id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1
 
-5. And start your crawler with this command
+6. Make sure to start your redis server
+
+	$> src/redis-server
+
+7. And start your crawler with this command
 
         scrapy crawl blog_spider
 
-6. At 20 December 2012, that script give me 2070 rows, with DEPTH_LIMIT = 1
+8. At 20 December 2012, that script give me 2070 rows, with DEPTH_LIMIT = 1
+9. At 8 January 2013, this script give me 749 Unique urls. And save in redis server using `sadd` command
 
 ## Notice
 The script is still sucks, not follow scrapy standards, use at your own risks.

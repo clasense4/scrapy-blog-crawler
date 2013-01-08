@@ -8,14 +8,13 @@ import re
 import urlparse
 from blog_crawler.settings import *
 import redis
-import urlparse
 
 '''
 Local VARIABLE
 '''
 cursor = CONN.cursor()
 pp = pprint.PrettyPrinter(indent=4)
-r = redis.Redis("localhost")
+r = redis.Redis(REDIS_SERVER, REDIS_PORT)
 
 
 def exclude_self(url, response_url, mode):
