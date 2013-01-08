@@ -1,13 +1,12 @@
 from scrapy.selector import HtmlXPathSelector
-from scrapy.contrib.spiders import CrawlSpider, Rule
+from scrapy.contrib.spiders import CrawlSpider
 from blog_crawler.items import *
 from scrapy.http import Request
-from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
+# from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
 import pprint
 import re
 import urlparse
 from blog_crawler.settings import *
-import MySQLdb
 
 '''
 Local VARIABLE
@@ -28,6 +27,7 @@ def exclude_self(url, response_url, mode):
 
 
 def clean(url):
+    # regex to check valid url
     regex = re.compile(
             r'^(?:http|ftp)s?://'  # http:// or https://
             r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain
@@ -94,6 +94,7 @@ class BlogSpider(CrawlSpider):
         hxs = HtmlXPathSelector(response)
 
         self.log('Base URL %s' % base_url)
+        # HXS select URL onlye
         link = hxs.select('//a/@href').extract()
 
         '''
