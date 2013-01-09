@@ -66,12 +66,19 @@ def get_base_url(url):
 
 
 def insert_table(url_from, url_found, url_referer):
-#     sql = "INSERT INTO %s(url_from, url_found, url_referer) \
-# values('%s', '%s', '%s')" % (SQL_TABLE, MySQLdb.escape_string(url_from), \
-    # MySQLdb.escape_string(url_found), MySQLdb.escape_string(url_referer))
     sql = "INSERT INTO %s(url_from, url_found, url_referer) \
 values('%s', '%s', '%s')" % (SQL_TABLE, url_from, \
     url_found, url_referer)
+    # print sql
+    if cursor.execute(sql):
+        return True
+    else:
+        print "Something wrong"
+
+
+def insert_table_master(url):
+    sql = "INSERT INTO %s(url_master) \
+values('%s')" % (SQL_TABLE_MASTER, url)
     # print sql
     if cursor.execute(sql):
         return True
@@ -156,10 +163,21 @@ class BlogSpider(CrawlSpider):
         '''
         Save to MySQL, looping by outer_link
         '''
+        # Insert to master table first, via redis
+        # URL FROM
+        if insert_redis('sadd', 'blog_url_master', blog['url_from']):
+            insert_table_master(blog['url_from'])
+
+        # Insert to tabel secondary
+        # URL FROM AND URL FOUND
         for out in blog['url_outer']:
             if insert_redis('sadd', get_base_url(blog['url_from']), get_base_url(out)):
                 insert_table(get_base_url(blog['url_from']), get_base_url(out), get_base_url(blog['url_refer']))
 
+            # Insert to master table first, via redis
+            # URL FOUND
+            if insert_redis('sadd', 'blog_url_master', get_base_url(out)):
+                insert_table_master(get_base_url(out))
         # Comment this if you're not using InnoDB engine
         CONN.commit()
 

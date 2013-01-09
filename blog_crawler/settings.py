@@ -24,6 +24,7 @@ ITEM_PIPELINES = [
 # SQL DATABASE SETTING
 SQL_DB = 'scrapy'
 SQL_TABLE = 'scrapy_blog'
+SQL_TABLE_MASTER = 'scrapy_blog_master'
 SQL_HOST = 'localhost'
 SQL_USER = 'root'
 SQL_PASSWD = '54321'
