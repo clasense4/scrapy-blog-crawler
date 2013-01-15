@@ -32,6 +32,7 @@ SQL_PASSWD = '54321'
 # REDIS SERVER SETTING
 REDIS_SERVER = 'localhost'
 REDIS_PORT = 6380
+REDIS_KEY_FORMAT = 'blog:'
 
 # connect to the MySQL server
 try:

@@ -165,18 +165,18 @@ class BlogSpider(CrawlSpider):
         '''
         # Insert to master table first, via redis
         # URL FROM
-        if insert_redis('sadd', 'blog_url_master', blog['url_from']):
+        if insert_redis('sadd', REDIS_KEY_FORMAT + 'urlmaster', blog['url_from']):
             insert_table_master(blog['url_from'])
 
         # Insert to tabel secondary
         # URL FROM AND URL FOUND
         for out in blog['url_outer']:
-            if insert_redis('sadd', get_base_url(blog['url_from']), get_base_url(out)):
+            if insert_redis('sadd', REDIS_KEY_FORMAT + get_base_url(blog['url_from']), get_base_url(out)):
                 insert_table(get_base_url(blog['url_from']), get_base_url(out), get_base_url(blog['url_refer']))
 
             # Insert to master table first, via redis
             # URL FOUND
-            if insert_redis('sadd', 'blog_url_master', get_base_url(out)):
+            if insert_redis('sadd', REDIS_KEY_FORMAT + 'urlmaster', get_base_url(out)):
                 insert_table_master(get_base_url(out))
         # Comment this if you're not using InnoDB engine
         CONN.commit()
