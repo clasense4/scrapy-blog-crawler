@@ -76,9 +76,12 @@ values('%s', '%s', '%s')" % (SQL_TABLE, url_from, \
         print "Something wrong"
 
 
-def insert_table_master(url):
-    sql = "INSERT INTO %s(url_master) \
-values('%s')" % (SQL_TABLE_MASTER, url)
+def insert_table_master(url, clas):
+    """
+    Just MySQL Insert script.
+    """
+    sql = "INSERT INTO %s(url_master, class) \
+values('%s', '%s')" % (SQL_TABLE_MASTER, url, clas)
     # print sql
     if cursor.execute(sql):
         return True
@@ -94,6 +97,20 @@ def insert_redis(command, key1, key2):
     if command == 'set':
         if r.set(key1, key2):
             return True
+
+
+def classification_by_url(url):
+    if 'wordpress' in url:
+        return "WP"
+    else:
+        return ""
+
+
+def classification_by_response(string):
+    if 'wp-content' in string:
+        return "wp"
+    else:
+        return ""
 
 
 class BlogSpider(CrawlSpider):
@@ -148,6 +165,17 @@ class BlogSpider(CrawlSpider):
         blog = BlogCrawlerItem()
         blog['url_from'] = base_url
         blog['url_outer'] = outer_link
+
+        """
+        Classification the url, try first with classification_by_url,
+        if not success, then use classification_by_response
+        """
+        clas = classification_by_url(response.url)
+        # print "Response Class (URL) = %s" % (clas)
+        if clas == "":
+            clas = classification_by_response(response.body)
+        # print "Response Class (RESPONSE) = %s" % (clas)
+
         try:
             temp = response.meta['redirect_urls']
             # looping & join multiple redirect url
@@ -166,7 +194,8 @@ class BlogSpider(CrawlSpider):
         # Insert to master table first, via redis
         # URL FROM
         if insert_redis('sadd', REDIS_KEY_FORMAT + 'urlmaster', blog['url_from']):
-            insert_table_master(blog['url_from'])
+            # Blog Master URL, and the classification
+            insert_table_master(blog['url_from'], clas)
 
         # Insert to tabel secondary
         # URL FROM AND URL FOUND
@@ -177,7 +206,8 @@ class BlogSpider(CrawlSpider):
             # Insert to master table first, via redis
             # URL FOUND
             if insert_redis('sadd', REDIS_KEY_FORMAT + 'urlmaster', get_base_url(out)):
-                insert_table_master(get_base_url(out))
+                # Blog Master URL, and the classification
+                insert_table_master(get_base_url(out), clas)
         # Comment this if you're not using InnoDB engine
         CONN.commit()
 
