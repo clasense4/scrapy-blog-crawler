@@ -28,6 +28,7 @@ and return some url that found on that url, then insert it into mysql.
         CREATE TABLE `scrapy_blog_master` (
           `id` int(11) NOT NULL AUTO_INCREMENT,
           `url_master` varchar(255) NOT NULL,
+          `class` varchar(50) DEFAULT 'UNIQ',
           PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='latin1_swedish_ci'
 
