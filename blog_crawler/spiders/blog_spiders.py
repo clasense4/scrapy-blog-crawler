@@ -181,7 +181,7 @@ class BlogSpider(CrawlSpider):
             # looping & join multiple redirect url
             if not isinstance(temp, basestring):
                 blog['url_refer'] = ','.join(i for i in temp)
-                print blog['url_refer']
+                # print blog['url_refer']
             else:
                 blog['url_refer'] = temp
         except:

@@ -16,3 +16,14 @@ class BlogCrawlerItem(Item):
 
     # def __str__(self):
     #     return "URL: name=%s" % (self.get('url_from'))
+
+
+class RssFeedItem(Item):
+    title = Field()  # the Title of the feed
+    link = Field()  # the URL to the web site(not the feed)
+    summary = Field()  # short description of feed
+    entries = Field()  # will contain the RSSEntrItems
+
+
+class RssEntryItem(RssFeedItem):
+    published = Field()
